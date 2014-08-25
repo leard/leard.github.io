@@ -61,6 +61,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
+<p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement  a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior. People rarely quantify how well they do the exercise. In this data set, six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.</p>
 </div>
 <div id="data" class="section level3">
 <h3>Data</h3>
@@ -69,8 +70,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <p>The test data are available here:</p>
 <p>(<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a>)</p>
 <p>The data for this project come from this source: (<a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a>).</p>
-<p>The loaded data set has many variables that are not necessary and with NA’s values.</p>
-<p>Removing the unecessary variables</p>
+<p>The loaded data set has many variables that are not necessary and with NA’s values. Removing the unecessary variables and showing:</p>
 <pre><code>## 'data.frame':    19622 obs. of  53 variables:
 ##  $ roll.belt           : num  1.41 1.41 1.42 1.48 1.48 1.45 1.42 1.42 1.43 1.45 ...
 ##  $ pitch.belt          : num  8.07 8.07 8.07 8.05 8.07 8.06 8.09 8.13 8.16 8.17 ...
@@ -129,8 +129,27 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="analysis" class="section level3">
 <h3>Analysis</h3>
+<p>For the modeling was used the Stochastic Gradient Boosting, that improving the accuracy of a predictive function by applying the function repeatedly, where each function output is combined with weighting. Thus the total error of the prediction is minimized.</p>
+<p>Before define the model, was created parameters for tunning the final model. For a gradient boosting machine (GBM) model, there are three main tuning parameters:</p>
+<ul>
+<li>number of iterations, i.e. trees, (called n.trees in the gbm function)<br /></li>
+<li>complexity of the tree, called interaction.depth<br /></li>
+<li>learning rate: how quickly the algorithm adapts, called shrinkage</li>
+</ul>
+<p>Therefore, has been used two groups of learning rate, 0.1 and 0.5; for the complexity tree has been used three groups, 4, 6 and 12. And finally, for the number of iterations has been used ranges between 50-500 and 50-1000. Thus, the first group has been configured:</p>
+<ul>
+<li>n.trees: (50, 100, 150, 200, 250, 300, 350, 400, 450, 500)</li>
+<li>interaction.depth: (4, 6, 12)</li>
+<li>shrinkage: 0.1</li>
+</ul>
+<p>And, the second group has been configured</p>
+<ul>
+<li>n.trees: (50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000)</li>
+<li>interaction.depth: (4, 6, 12)</li>
+<li>shrinkage: 0.05</li>
+</ul>
 <p><strong>GBM</strong></p>
-<p>The model were previously calculated and loaded, because of the memory leak. Two groups of model were tunning.</p>
+<p>The model were previously calculated and loaded, because of the memory leak. Two groups of model were tunning. Was not used multiple values in fitControl, once the total memory used is too large. Thus the models has been splitted in six models.</p>
 <pre class="r"><code>gbmPFit1.1&lt;-readRDS(&quot;data/gbmPFit1.1.rds&quot;)
 gbmPFit1.2&lt;-readRDS(&quot;data/gbmPFit1.2.rds&quot;)
 gbmPFit1.3&lt;-readRDS(&quot;data/gbmPFit1.3.rds&quot;)
@@ -360,6 +379,7 @@ gbmPFit2.4.2pct&lt;-readRDS(&quot;data//gbmPFit2.4.2pct.rds&quot;)</code></pre>
 ## Detection Rate          0.284    0.193    0.174    0.164    0.184
 ## Detection Prevalence    0.284    0.194    0.174    0.164    0.184
 ## Balanced Accuracy       1.000    1.000    0.999    0.999    1.000</code></pre>
+<p>From the tables we see that the GBM performs reasonably well on both nodels (best fit and with tolerance).</p>
 </div>
 <div id="unknown-test" class="section level3">
 <h3>Unknown Test</h3>
@@ -367,7 +387,7 @@ gbmPFit2.4.2pct&lt;-readRDS(&quot;data//gbmPFit2.4.2pct.rds&quot;)</code></pre>
 <p><strong>First Model 1%</strong></p>
 <pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
 ## Levels: A B C D E</code></pre>
-<p><strong>Firs Model 2%</strong></p>
+<p><strong>First Model 2%</strong></p>
 <pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
 ## Levels: A B C D E</code></pre>
 <p><strong>Second Model 1%</strong></p>
@@ -385,7 +405,7 @@ gbmPFit2.4.2pct&lt;-readRDS(&quot;data//gbmPFit2.4.2pct.rds&quot;)</code></pre>
 </div>
 <div id="references" class="section level3">
 <h3>References</h3>
-<p><a href="http://topepo.github.io/caret/">Caret</a><br /><a href="http://groupware.les.inf.puc-rio.br/har">Groupware</a></p>
+<p>[1] Friedman<a href="http://statweb.stanford.edu/~jhf/ftp/stobst.pdf">GBM</a><br />[2] KUHN, M., &amp; JOHNSON, K. (2013). Applied predictive modeling. New York, NY, Springer. <a href="http://dx.doi.org/10.1007/978-1-4614-6849-3">http://dx.doi.org/10.1007/978-1-4614-6849-3</a>.<br />[3] Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human ’13) . Stuttgart, Germany: ACM SIGCHI, 2013. Read more: <a href="http://groupware.les.inf.puc-rio.br/har">Groupware</a><br />[4] Library <a href="http://topepo.github.io/caret/">Caret</a></p>
 </div>
 
 
